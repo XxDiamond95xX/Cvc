@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Formation Technicien CVC</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#050508;font-family:'Courier New',monospace;color:#fff}
+::-webkit-scrollbar{width:6px;background:#08080f}
+::-webkit-scrollbar-thumb{background:#1a1a2e;border-radius:3px}
+button{cursor:pointer}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+// ── Données ────────────────────────────────────────────────────────────────
+const MODULES = [
+  {
+    id:"circuit-frigo", icon:"❄️", title:"Circuit Frigorifique",
+    subtitle:"Cycle de réfrigération par compression",
+    color:"#00d4ff", gradient:"linear-gradient(135deg,#003d5c,#006b8f)",
+    chapters:[
+      {
+        id:"thermodynamique", title:"Thermodynamique de base",
+        content:[
+          {type:"h",text:"Le cycle frigorifique à compression de vapeur"},
+          {type:"p",text:"Principe fondamental de tous les systèmes de climatisation et réfrigération modernes. Il repose sur la loi de Clausius-Clapeyron et le phénomène de changement d'état des fluides frigorigènes."},
+          {type:"h",text:"Principe de Carnot"},
+          {type:"p",text:"Le cycle de Carnot définit la limite théorique du COP (Coefficient de Performance). Pour un cycle réel, le COP est toujours inférieur au COP de Carnot."},
+          {type:"formula",text:"COP = Qf / W",sub:"Qf = Puissance frigorifique [kW]  |  W = Travail compresseur [kW]"},
+          {type:"h",text:"Les 4 transformations du cycle"},
+          {type:"li",n:"1",bold:"1→2 : Compression adiabatique",text:" — Vapeur saturée → vapeur surchauffée. Pression et température augmentent."},
+          {type:"li",n:"2",bold:"2→3 : Condensation isobare",text:" — Le fluide cède de la chaleur au milieu extérieur et passe à l'état liquide."},
+          {type:"li",n:"3",bold:"3→4 : Détente",text:" — Le fluide traverse le détendeur. Chute de pression et de température. Début évaporation."},
+          {type:"li",n:"4",bold:"4→1 : Évaporation isobare",text:" — Le fluide absorbe la chaleur du milieu à refroidir et se vaporise."},
+        ],
+        keyPoints:["COP typique installation : 2,5 à 4,5","Fluides courants : R410A, R32, R134a, R1234yf","Température évaporation : -10°C à +15°C","Température condensation : +30°C à +55°C"],
+        quiz:[
+          {q:"Dans quel composant le fluide frigorigène absorbe-t-il la chaleur du milieu à refroidir ?",choices:["Le compresseur","L'évaporateur","Le condenseur","Le détendeur"],answer:1,explanation:"L'évaporateur est l'échangeur côté froid. Le fluide y absorbe la chaleur du milieu à refroidir en s'évaporant à basse pression."},
+          {q:"Qu'est-ce que le COP d'une installation frigorifique ?",choices:["La puissance électrique consommée","Le rapport entre la puissance frigorifique et la puissance absorbée","La différence de température entre condensation et évaporation","Le débit massique du fluide frigorigène"],answer:1,explanation:"Le COP = Qf/W. Un COP de 3 signifie que pour 1 kW électrique consommé, on produit 3 kW de froid."},
+        ]
+      },
+      {
+        id:"composants", title:"Les 4 composants principaux",
+        content:[
+          {type:"h",text:"1. LE COMPRESSEUR"},
+          {type:"p",text:"Cœur de l'installation : aspire la vapeur de frigorigène à basse pression et la refoule à haute pression."},
+          {type:"b",bold:"Scroll (spirale)",text:" : Haute efficacité, faible bruit. Climatisation < 100 kW."},
+          {type:"b",bold:"Vis (Screw)",text:" : Semi-hermétique ou ouvert, 50 à 1000 kW, groupes industriels."},
+          {type:"b",bold:"Alternatif (Piston)",text:" : Robuste, plages de puissance variables."},
+          {type:"b",bold:"Centrifuge",text:" : Très grandes installations, refroidisseurs > 500 kW."},
+          {type:"formula",text:"P_abs = m × (h2−h1) / η_mec",sub:"η_is = 65-85%  |  η_vol = 75-95%  |  Rapport compression = 4 à 8"},
+          {type:"h",text:"2. LE CONDENSEUR"},
+          {type:"p",text:"Échangeur haute pression où le fluide cède sa chaleur. Air/frigorigène (ventilateurs) ou Eau/frigorigène (tour de refroidissement). Sous-refroidissement optimal : 5 à 8 K."},
+          {type:"h",text:"3. LE DÉTENDEUR"},
+          {type:"b",bold:"TXV (thermostatique)",text:" : Régulation par surchauffe (5 à 8 K)."},
+          {type:"b",bold:"EEV (électronique)",text:" : Précision ±0,5 K, idéal inverter."},
+          {type:"b",bold:"Tube capillaire",text:" : Petites puissances, pas de régulation."},
+          {type:"h",text:"4. L'ÉVAPORATEUR"},
+          {type:"p",text:"Échangeur basse pression, absorption de chaleur du milieu à refroidir. Surchauffe typique 5 à 10 K pour protéger le compresseur contre le retour liquide (liquid slug)."},
+        ],
+        keyPoints:["Surchauffe aspirée : 5-10 K (protection liquid slug)","Sous-refroidissement : 5-8 K (optimisation COP)","Rapport compression max : 8-10 (risque surchauffe)","T° refoulement max : 120°C (protection huile)"],
+        quiz:[
+          {q:"Quel type de compresseur est le plus adapté pour une climatisation de précision en salle serveur ?",choices:["Piston alternatif","Centrifuge","Scroll ou Vis avec variateur de fréquence","Tube capillaire"],answer:2,explanation:"Le compresseur Scroll ou Vis avec variateur de fréquence (inverter) permet une modulation précise de la puissance, idéal pour les salles serveurs où les charges varient."},
+          {q:"Pourquoi maintient-on une surchauffe de 5 à 10 K à l'aspiration du compresseur ?",choices:["Pour augmenter le COP","Pour éviter l'entrée de liquide dans le compresseur","Pour réduire la consommation électrique","Pour augmenter la capacité frigorifique"],answer:1,explanation:"La surchauffe garantit que seule la vapeur entre dans le compresseur. Le liquide frigorigène est incompressible et détruirait immédiatement les pistons ou spirales."},
+        ]
+      }
+    ]
+  },
+  {
+    id:"crac", icon:"🖥️", title:"CRAC",
+    subtitle:"Computer Room Air Conditioning",
+    color:"#ff6b2b", gradient:"linear-gradient(135deg,#3d1500,#7a2e00)",
+    chapters:[
+      {
+        id:"crac-intro", title:"Principe et architecture CRAC",
+        content:[
+          {type:"h",text:"Le CRAC — Climatisation de précision"},
+          {type:"p",text:"Unité de climatisation conçue spécifiquement pour les salles informatiques et les datacenters. Contrairement à la climatisation confort, il répond à des exigences très strictes de température, humidité et filtration."},
+          {type:"formula",text:"Régulation : ±0,5 à ±1°C  |  HR : 40-60%",sub:"Disponibilité visée : 99,999% (5 min d'arrêt/an)"},
+          {type:"h",text:"Architecture type d'un CRAC (armoire intégrée)"},
+          {type:"li",n:"1",bold:"Batterie froide DX",text:" — Évaporateur du circuit frigorifique interne (R410A, R32)"},
+          {type:"li",n:"2",bold:"Batterie chaude",text:" — Électrique ou hydraulique, préchauffage si T° trop basse"},
+          {type:"li",n:"3",bold:"Humidificateur",text:" — Électrode à immersion ou résistances immergées"},
+          {type:"li",n:"4",bold:"Déshumidificateur",text:" — Rôle de l'évaporateur en mode déshum."},
+          {type:"li",n:"5",bold:"Ventilateurs EC",text:" — Electronically Commutated, vitesse variable 0-100%"},
+          {type:"li",n:"6",bold:"Filtrerie",text:" — G4 + F7 typiquement (EN 779), ΔP mesuré en continu"},
+          {type:"h",text:"Types de refroidissement du condenseur"},
+          {type:"b",bold:"Air / Air",text:" : Condenseur à air extérieur, simple mais limité en T°ext"},
+          {type:"b",bold:"Air / Eau",text:" : Condenseur raccordé à circuit eau froide ou tour, meilleur COP"},
+          {type:"b",bold:"Free-Cooling",text:" : Utilisation directe de l'air extérieur froid en hiver"},
+          {type:"h",text:"Normes de référence"},
+          {type:"b",bold:"ASHRAE TC 9.9",text:" : Classes A1 à A4 pour serveurs (A1 : 15-32°C, 20-80% HR)"},
+          {type:"b",bold:"EN 1886",text:" : Performance des unités de traitement d'air"},
+          {type:"b",bold:"EN 50600",text:" : Datacenters — Infrastructure physique"},
+        ],
+        keyPoints:["Puissance typique CRAC : 10 à 60 kW","COP CRAC : 2,0 à 3,5 (selon T°ext et charge)","ASHRAE A1 : 15-32°C, 20-80% HR (classe serveurs standard)","PUE datacenter : objectif < 1,4"],
+        quiz:[
+          {q:"Quelle est la plage d'humidité relative recommandée par l'ASHRAE pour une salle serveur ?",choices:["10-30%","40-60%","70-90%","20-40%"],answer:1,explanation:"L'ASHRAE recommande 40-60% HR. En dessous, risque d'électricité statique ; au-dessus, risque de condensation sur les composants électroniques."},
+          {q:"Qu'est-ce que le PUE d'un datacenter ?",choices:["La puissance maximale consommée par les serveurs","Le rapport entre énergie totale du datacenter et énergie IT","La capacité de refroidissement disponible","Le nombre d'unités CRAC installées"],answer:1,explanation:"PUE = Énergie totale datacenter / Énergie consommée IT. Un PUE = 1,4 signifie que pour 1 kW IT, on consomme 0,4 kW pour refroidir et distribuer."},
+        ]
+      },
+      {
+        id:"crac-maintenance", title:"Maintenance préventive CRAC",
+        content:[
+          {type:"h",text:"MENSUELLE — Technicien N1"},
+          {type:"b",bold:"Fuites frigorigène",text:" : Vérification visuelle + détecteur électronique halogéné"},
+          {type:"b",bold:"Filtres",text:" : Contrôle encrassement et ΔP (filtre bouché = +15% conso ventilateur)"},
+          {type:"b",bold:"Paramètres",text:" : Lecture T° soufflage/retour, HR%, alarmes actives"},
+          {type:"b",bold:"Test alarmes",text:" : Sonde T°, sonde HR, coupure alimentation"},
+          {type:"h",text:"TRIMESTRIELLE — Technicien N2"},
+          {type:"b",bold:"Mesures électriques",text:" : Courant compresseur et ventilateurs (clamp-mètre True RMS)"},
+          {type:"b",bold:"Humidificateur",text:" : Contrôle tartre (eau dure = détérioration résistances et électrodes)"},
+          {type:"b",bold:"Pressions HP/BP",text:" : Vérification avec manifold digital 4 voies"},
+          {type:"b",bold:"Batterie (serpentin)",text:" : Nettoyage soufflage + mousse coilclean"},
+          {type:"h",text:"SEMESTRIELLE — Technicien N2/N3 certifié"},
+          {type:"b",bold:"Circuit frigo complet",text:" : Pressions HP/BP, surchauffe aspirée, sous-refroidissement"},
+          {type:"b",bold:"Isolation électrique",text:" : Mégohmmètre 500V entre bobinage et masse (> 1 MΩ requis)"},
+          {type:"b",bold:"Étalonnage",text:" : Sondes T° (bain thermostaté) et HR (hygromètre référence)"},
+          {type:"h",text:"ANNUELLE — Technicien N3 + Attestation de capacité"},
+          {type:"b",bold:"Recherche fuites",text:" : Test azote + traceur UV (seuil légal : < 5% charge/an)"},
+          {type:"b",bold:"Filtre dessiccateur",text:" : Remplacement si humidité détectée (indicateur liquide trouble)"},
+          {type:"b",bold:"Bilan énergétique",text:" : COP réel vs. nominal, analyse dérive de performance"},
+          {type:"formula",text:"Surchauffe = T°asp − T°sat(BP)",sub:"Sous-refroidissement = T°sat(HP) − T°liq  |  Cibles : 5-8 K chacun"},
+        ],
+        keyPoints:["Attestation de capacité obligatoire (Décret n°2015-1334)","Seuil fuite réglementaire : 5% de charge/an max","Encrassement filtre : +15% consommation ventilateur","Tartre humidificateur : −30% capacité humidification"],
+        quiz:[
+          {q:"Pourquoi faut-il une attestation de capacité pour manipuler les fluides frigorigènes ?",choices:["C'est juste une recommandation","Pour des raisons environnementales (GWP élevé) et de sécurité","Uniquement pour les installations > 100 kW","Pour pouvoir acheter du matériel"],answer:1,explanation:"Le Décret n°2015-1334 impose l'attestation de capacité. Les fluides HFC ont un GWP élevé (R410A = 2088). Leur rejet est interdit et sanctionné pénalement."},
+          {q:"Quelle mesure électrique permet de vérifier l'isolation d'un moteur de compresseur ?",choices:["Voltmètre entre phase et neutre","Clamp-mètre en mode AC","Mégohmmètre à 500V entre bobinage et masse","Multimètre en mode résistance (Ohm)"],answer:2,explanation:"Le mégohmmètre applique 500V DC entre le bobinage et la carcasse. Une résistance > 1 MΩ est acceptable. En dessous, le bobinage est humide ou dégradé."},
+        ]
+      }
+    ]
+  },
+  {
+    id:"crah", icon:"🌀", title:"CRAH",
+    subtitle:"Computer Room Air Handler",
+    color:"#00ff88", gradient:"linear-gradient(135deg,#003d1a,#006b30)",
+    chapters:[
+      {
+        id:"crah-principe", title:"Architecture et fonctionnement CRAH",
+        content:[
+          {type:"h",text:"CRAH vs CRAC — Différence fondamentale"},
+          {type:"p",text:"Le CRAH n'intègre pas de circuit frigorifique. Il utilise de l'eau glacée produite par un groupe froid (chiller) centralisé. C'est un simple échangeur air/eau avec ventilateurs EC."},
+          {type:"formula",text:"CRAC : Production froid interne (compresseur)",sub:"CRAH : Production froid externe (chiller centralisé N+1)"},
+          {type:"h",text:"Architecture du CRAH"},
+          {type:"li",n:"1",bold:"Batterie à eau glacée (Coil)",text:" — Eau entrée 6°C / sortie 12°C, ΔT = 6K standard"},
+          {type:"li",n:"2",bold:"Ventilateurs EC brushless",text:" — Aimants permanents, η > 90%, variation 0-100% native"},
+          {type:"li",n:"3",bold:"Automate embarqué",text:" — Sonde T° retour d'air, set point 24-27°C, alarmes débit"},
+          {type:"li",n:"4",bold:"Vanne 2 voies motorisée",text:" — Régulation du débit d'eau par CRAH (24V actionnée)"},
+          {type:"h",text:"Calcul du débit d'eau — Formule fondamentale"},
+          {type:"formula",text:"Débit (m³/h) = Puissance (kW) ÷ (1,163 × ΔT)",sub:"Exemple : 120 kW ÷ (1,163 × 6K) = 17,2 m³/h"},
+          {type:"h",text:"Schéma hydraulique type"},
+          {type:"p",text:"Chiller → Nourrice aller 6°C → Vanne 2V → CRAH → Nourrice retour 12°C → Chiller. Pompes N+1 avec variateur de fréquence. Vanne de régulation sur chaque CRAH."},
+          {type:"h",text:"Avantages CRAH pour datacenter"},
+          {type:"b",bold:"COP système",text:" : jusqu'à 6-8 avec free-cooling eau glacée"},
+          {type:"b",bold:"Maintenance centralisée",text:" : 1 chiller vs N circuits frigo indépendants"},
+          {type:"b",bold:"Scalabilité",text:" : Ajout CRAH sans modification circuit frigorifique"},
+          {type:"b",bold:"Free-cooling eau",text:" : Économie jusqu'à 60% énergie si T°ext < 8°C"},
+        ],
+        keyPoints:["Eau glacée : 6°C aller / 12°C retour (ΔT = 6K)","Débit (m³/h) = kW ÷ (1,163 × ΔT eau)","Ventilateurs EC : η > 90% (vs 70% moteurs AC)","Free-cooling eau : économie 60% énergie en hiver"],
+        quiz:[
+          {q:"Un CRAH doit refroidir 120 kW avec eau glacée 6/12°C (ΔT=6K). Quel est le débit d'eau nécessaire ?",choices:["8,6 m³/h","17,2 m³/h","34,4 m³/h","5,2 m³/h"],answer:1,explanation:"Q = P ÷ (1,163 × ΔT) = 120 ÷ (1,163 × 6) = 120 ÷ 6,978 ≈ 17,2 m³/h. La constante 1,163 est la capacité calorifique de l'eau en Wh/(l·K)."},
+          {q:"Quel est l'avantage principal des moteurs EC par rapport aux moteurs AC dans les ventilateurs CRAH ?",choices:["Ils sont moins chers à l'achat","Rendement supérieur (>90%) et variation de vitesse native","Ils fonctionnent uniquement en triphasé","Ils ne nécessitent aucune maintenance"],answer:1,explanation:"Les moteurs EC (Electronically Commutated) à aimants permanents atteignent η > 90% contre 70% pour l'AC. Ils modulent nativement leur vitesse selon la charge, économisant jusqu'à 50% d'énergie en mi-charge."},
+        ]
+      }
+    ]
+  },
+  {
+    id:"fanwall", icon:"🔄", title:"Fanwall",
+    subtitle:"Mur de ventilateurs N+1",
+    color:"#bf5fff", gradient:"linear-gradient(135deg,#1a003d,#35006b)",
+    chapters:[
+      {
+        id:"fanwall-concept", title:"Technologie Fanwall et redondance",
+        content:[
+          {type:"h",text:"Le Fanwall — Architecture matricielle EC"},
+          {type:"p",text:"Le Fanwall remplace un ou plusieurs grands ventilateurs par une matrice de petits ventilateurs EC disposés en mur. Chaque ventilateur est adressable individuellement et monitoré en permanence."},
+          {type:"h",text:"Principe de redondance N+1"},
+          {type:"p",text:"Si un fanwall comporte 9 ventilateurs (3×3) dimensionnés pour 100% de la charge, chaque ventilateur assure 1/9 ≈ 11% du débit. En panne d'un ventilateur, les 8 restants accélèrent légèrement → Zéro interruption de service."},
+          {type:"formula",text:"V_compensation = (N/(N−1))^(1/3) × V_nominale",sub:"Exemple N=8 → +14,3% vitesse pour maintenir débit constant"},
+          {type:"h",text:"Lois de Similitude des ventilateurs (Lois d'Affinité)"},
+          {type:"b",bold:"Débit Q",text:" : Q₂/Q₁ = n₂/n₁  (proportionnel à la vitesse)"},
+          {type:"b",bold:"Pression ΔP",text:" : ΔP₂/ΔP₁ = (n₂/n₁)²  (carré de la vitesse)"},
+          {type:"b",bold:"Puissance P",text:" : P₂/P₁ = (n₂/n₁)³  (cube — LOI FONDAMENTALE)"},
+          {type:"formula",text:"−20% vitesse → −49% puissance consommée !",sub:"P₂ = P₁ × (0,8)³ = P₁ × 0,512"},
+          {type:"h",text:"Avantages Fanwall vs ventilateur unique"},
+          {type:"b",bold:"Redondance N+1",text:" : Zéro arrêt en cas de panne d'un ventilateur"},
+          {type:"b",bold:"Hot-swap",text:" : Remplacement sous tension sans arrêt de l'installation"},
+          {type:"b",bold:"Efficacité",text:" : Petits EC à haut rendement aérodynamique (η > 85%)"},
+          {type:"b",bold:"Bruit réduit",text:" : Distribution du bruit sur de nombreuses sources"},
+          {type:"b",bold:"Modularité",text:" : Ajout de colonnes si la puissance IT augmente"},
+          {type:"h",text:"Technologies de contrôle"},
+          {type:"b",bold:"Bus CAN ou RS485",text:" : Chaque ventilateur adressable individuellement"},
+          {type:"b",bold:"Protocole EC-Bus (ebm-papst)",text:" : Monitoring vibrations, T° roulement, heures"},
+          {type:"b",bold:"BMS Integration",text:" : BACnet/IP ou Modbus TCP vers supervision datacenter"},
+          {type:"b",bold:"Load Sharing",text:" : Équilibration automatique des heures de fonctionnement"},
+        ],
+        keyPoints:["Loi cubique : −20% vitesse = −49% puissance !","Hot-swap : remplacement sans arrêt installation","Rendement EC : η > 85% au point nominal","Monitoring : vibrations, T° roulement, heures"],
+        quiz:[
+          {q:"Un fanwall tourne à 800 rpm et consomme 2 kW. Vitesse réduite à 640 rpm (−20%). Nouvelle puissance ?",choices:["1,6 kW","1,024 kW","1,28 kW","1,8 kW"],answer:1,explanation:"Loi cubique : P₂ = P₁ × (n₂/n₁)³ = 2 × (640/800)³ = 2 × (0,8)³ = 2 × 0,512 = 1,024 kW. Économie de 49% pour seulement 20% de réduction de vitesse !"},
+          {q:"Un fanwall de 8 ventilateurs perd 1 ventilateur. De combien augmente la vitesse des 7 restants pour maintenir le même débit ?",choices:["Augmentation de 14,3%","Le système s'arrête automatiquement","Aucun changement","Augmentation de 25%"],answer:0,explanation:"Q constant : 7×V₂ = 8×V₁, donc V₂ = (8/7)×V₁ = 1,143×V₁. Augmentation de 14,3%. Grâce à la loi cubique, la puissance totale n'augmente que de ~6%."},
+        ]
+      }
+    ]
+  },
+  {
+    id:"cvc", icon:"🏭", title:"CVC",
+    subtitle:"Chauffage Ventilation Climatisation",
+    color:"#ffcc00", gradient:"linear-gradient(135deg,#3d2e00,#6b5100)",
+    chapters:[
+      {
+        id:"cta", title:"Centrale de Traitement d'Air (CTA)",
+        content:[
+          {type:"h",text:"La Centrale de Traitement d'Air — CTA"},
+          {type:"p",text:"Équipement central des installations CVC tertiaires et industrielles. Elle traite l'air neuf et/ou recyclé pour maintenir les conditions de confort ou de process selon les normes EN 13053 et EN 1886."},
+          {type:"h",text:"Section 1 — Entrée Air Neuf"},
+          {type:"b",bold:"Volet AN motorisé",text:" : Servomoteur 24V, modulation 0-100% selon CO₂ (DCV)"},
+          {type:"b",bold:"Filtre G4",text:" : Gros particulaires (pollen, poussière, insectes)"},
+          {type:"b",bold:"Filtre F7 / F9",text:" : Fines particules, PM2.5, efficacité 95% à MPPS (0,4 μm)"},
+          {type:"h",text:"Section 2 — Récupération d'énergie"},
+          {type:"b",bold:"Échangeur à contre-courant",text:" : η = 60-85%, chaleur sensible uniquement, sans transfert humidité"},
+          {type:"b",bold:"Roue hygroscopique (enthalpique)",text:" : η = 75-85%, récupère chaleur sensible + latente (humidité)"},
+          {type:"b",bold:"Run-around coil",text:" : 2 batteries interconnectées, idéal bâtiments multi-ailes"},
+          {type:"h",text:"Section 3 — Batteries chauffe / refroidissement"},
+          {type:"b",bold:"Batterie chaude",text:" : Eau chaude 70/50°C ou électrique. Vanne 3 voies + actionneur"},
+          {type:"b",bold:"Batterie froide",text:" : Eau glacée 6/12°C ou DX. Vanne 3 voies motorisée"},
+          {type:"h",text:"Section 4 — Humidification"},
+          {type:"b",bold:"Humidificateur vapeur",text:" : Résistances immersées, hygiénique, zéro risque légionelle"},
+          {type:"b",bold:"Humidificateur adiabatique HPA",text:" : Haute pression eau osmosée, très économique en énergie"},
+          {type:"b",bold:"Humidificateur ultrasons",text:" : Petite puissance, silencieux, eau déminéralisée obligatoire"},
+          {type:"h",text:"Section 5 — Ventilation"},
+          {type:"b",bold:"Ventilateur soufflage",text:" : Moteur EC direct drive (pas de courroie), η > 90%"},
+          {type:"b",bold:"Ventilateur extraction",text:" : Double flux, maintien équilibre pression bâtiment"},
+          {type:"b",bold:"Mesure débit",text:" : Tube de Pitot ou plaque à orifice (mesure pression différentielle)"},
+          {type:"h",text:"Régulation CTA — Automate DDC"},
+          {type:"b",bold:"PID T° soufflage",text:" : Cascade avec T° ambiante, action sur vanne froide/chaude"},
+          {type:"b",bold:"PID Humidité",text:" : Commande humidificateur + volet by-pass batterie"},
+          {type:"b",bold:"CO₂ DCV",text:" : Modulation débit AN selon CO₂ (seuil alerte 1000 ppm)"},
+          {type:"b",bold:"Alarmes critiques",text:" : ΔP filtre, gel batterie < 4°C, incendie, rupture courroie"},
+          {type:"formula",text:"Débit AN = N × 10 l/(s·pers) + S × 0,3 l/(s·m²)",sub:"ASHRAE 62.1 — Bureaux standard open-space"},
+        ],
+        keyPoints:["Récupérateur plaques : η = 60-85% (sensible uniquement)","Roue hygroscopique : η = 75-85% (sensible + latente)","CO₂ < 1000 ppm : qualité d'air intérieur acceptable","Filtre F7 : efficacité 95% à MPPS (0,4 μm)"],
+        quiz:[
+          {q:"Quelle technologie de récupération de chaleur permet de récupérer la chaleur sensible ET latente (humidité) ?",choices:["Échangeur à plaques aluminium","Batterie run-around coil","Roue hygroscopique (roue enthalpique)","Free-cooling direct"],answer:2,explanation:"La roue hygroscopique est imprégnée d'un matériau hygroscopique (silicagel, zéolite). Elle tourne entre le flux d'extraction et d'air neuf, transférant chaleur ET humidité, atteignant η = 75-85% enthalpique."},
+          {q:"Le CO₂ dans une salle de réunion atteint 1800 ppm. Quelle action automatique devrait déclencher un système DCV ?",choices:["Augmenter la température de soufflage","Ouvrir davantage le volet d'air neuf (augmenter le débit AN)","Activer l'humidificateur","Couper les ventilateurs"],answer:1,explanation:"La régulation DCV utilise le CO₂ comme indicateur de taux d'occupation. 1800 ppm > seuil 1000 ppm → ouverture volet air neuf pour diluer le CO₂ et apporter O₂ frais."},
+        ]
+      }
+    ]
+  }
+];
+
+// ── SVG Diagrammes ─────────────────────────────────────────────────────────
+function DiagCircuitFrigo() {
+  return (
+    <svg viewBox="0 0 700 420" style={{width:"100%"}}>
+      <defs>
+        <marker id="aC" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#00d4ff"/></marker>
+        <marker id="aH" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#ff6b2b"/></marker>
+        <filter id="gl"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <rect x="330" y="15" width="355" height="195" rx="8" fill="rgba(255,107,43,0.07)" stroke="rgba(255,107,43,0.3)" strokeWidth="1" strokeDasharray="4,3"/>
+      <text x="507" y="34" textAnchor="middle" fill="#ff6b2b" fontSize="11" fontFamily="monospace">HAUTE PRESSION (HP)</text>
+      <rect x="20" y="220" width="355" height="185" rx="8" fill="rgba(0,212,255,0.07)" stroke="rgba(0,212,255,0.3)" strokeWidth="1" strokeDasharray="4,3"/>
+      <text x="197" y="238" textAnchor="middle" fill="#00d4ff" fontSize="11" fontFamily="monospace">BASSE PRESSION (BP)</text>
+      <g transform="translate(105,85)">
+        <rect x="-55" y="-42" width="110" height="84" rx="8" fill="#0d0d1a" stroke="#00d4ff" strokeWidth="2" filter="url(#gl)"/>
+        <text x="0" y="-20" textAnchor="middle" fill="#00d4ff" fontSize="11" fontWeight="bold" fontFamily="monospace">COMPRESSEUR</text>
+        <text x="0" y="-4" textAnchor="middle" fill="#aaa" fontSize="9" fontFamily="monospace">Scroll / Vis / Piston</text>
+        <text x="0" y="10" textAnchor="middle" fill="#ffcc00" fontSize="9" fontFamily="monospace">η_is = 70-85%</text>
+        <text x="0" y="24" textAnchor="middle" fill="#aaa" fontSize="9" fontFamily="monospace">W = m·(h2−h1)</text>
+      </g>
+      <g transform="translate(500,85)">
+        <rect x="-80" y="-42" width="160" height="84" rx="8" fill="#0d0d1a" stroke="#ff6b2b" strokeWidth="2" filter="url(#gl)"/>
+        <text x="0" y="-20" textAnchor="middle" fill="#ff6b2b" fontSize="11" fontWeight="bold" fontFamily="monospace">CONDENSEUR</text>
+        <text x="0" y="-4" textAnchor="middle" fill="#aaa" fontSize="9" fontFamily="monospace">Rejet chaleur Qc</text>
+        <text x="0" y="10" textAnchor="middle" fill="#ffcc00" fontSize="9" fontFamily="monospace">Tcond = 35-50°C</text>
+        <text x="0" y="24" textAnchor="middle" fill="#aaa" fontSize="9" fontFamily="monospace">Qc = Qf + W</text>
+        <line x1="-30" y1="-42" x2="-30" y2="-60" stroke="#ff4444" strokeWidth="1.5" markerEnd="url(#aH)" opacity="0.8"/>
+        <line x1="0" y1="-42" x2="0" y2="-60" stroke="#ff4444" strokeWidth="1.5" markerEnd="url(#aH)" opacity="0.8"/>
+        <line x1="30" y1="-42" x2="30" y2="-60" stroke="#ff4444" strokeWidth="1.5" markerEnd="url(#aH)" opacity="0.8"/>
+        <text x="0" y="-64" textAnchor="middle" fill="#ff4444" fontSize="9" fontFamily="monospace">CHALEUR → EXT.</text>
+      </g>
+      <g transform="translate(500,315)">
+        <rect x="-65" y="-32" width="130" height="64" rx="8" fill="#0d0d1a" stroke="#bf5fff" strokeWidth="2" filter="url(#gl)"/>
+        <text x="0" y="-12" textAnchor="middle" fill="#bf5fff" fontSize="11" fontWeight="bold" fontFamily="monospace">DÉTENDEUR</text>
+        <text x="0" y="4" textAnchor="middle" fill="#aaa" fontSize="9" fontFamily="monospace">TXV / EEV / Capillaire</text>
+        <text x="0" y="18" textAnchor="middle" fill="#ffcc00" fontSize="9" fontFamily="monospace">Surchauffe cible = 5-8 K</text>
+      </g>
+      <g transform="translate(145,315)">
+        <rect x="-95" y="-42" width="190" height="84" rx="8" fill="#0d0d1a" stroke="#00ff88" strokeWidth="2" filter="url(#gl)"/>
+        <text x="0" y="-20" textAnchor="middle" fill="#00ff88" fontSize="11" fontWeight="bold" fontFamily="monospace">ÉVAPORATEUR</text>
+        <text x="0" y="-4" textAnchor="middle" fill="#aaa" fontSize="9" fontFamily="monospace">Absorption chaleur Qf</text>
+        <text x="0" y="10" textAnchor="middle" fill="#ffcc00" fontSize="9" fontFamily="monospace">Tévap = −5 à +15°C</text>
+        <text x="0" y="24" textAnchor="middle" fill="#aaa" fontSize="9" fontFamily="monospace">Qf = m·(h1−h4)</text>
+        <line x1="-35" y1="42" x2="-35" y2="60" stroke="#00d4ff" strokeWidth="1.5" markerEnd="url(#aC)" opacity="0.8"/>
+        <line x1="0" y1="42" x2="0" y2="60" stroke="#00d4ff" strokeWidth="1.5" markerEnd="url(#aC)" opacity="0.8"/>
+        <line x1="35" y1="42" x2="35" y2="60" stroke="#00d4ff" strokeWidth="1.5" markerEnd="url(#aC)" opacity="0.8"/>
+        <text x="0" y="72" textAnchor="middle" fill="#00d4ff" fontSize="9" fontFamily="monospace">FROID → MILIEU</text>
+      </g>
+      <line x1="160" y1="85" x2="420" y2="85" stroke="#ff6b2b" strokeWidth="3" markerEnd="url(#aH)" filter="url(#gl)"/>
+      <text x="290" y="72" textAnchor="middle" fill="#ff6b2b" fontSize="9" fontFamily="monospace">① Vapeur HP surchauffée</text>
+      <line x1="500" y1="127" x2="500" y2="283" stroke="#ff8800" strokeWidth="3" markerEnd="url(#aH)" filter="url(#gl)"/>
+      <text x="535" y="210" textAnchor="middle" fill="#ff8800" fontSize="9" fontFamily="monospace" transform="rotate(90,535,210)">② Liquide HP sous-refroidi</text>
+      <line x1="435" y1="315" x2="240" y2="315" stroke="#00d4ff" strokeWidth="3" markerEnd="url(#aC)" filter="url(#gl)"/>
+      <text x="337" y="303" textAnchor="middle" fill="#00d4ff" fontSize="9" fontFamily="monospace">③ Mélange BP (détente)</text>
+      <line x1="145" y1="273" x2="145" y2="160" stroke="#00aaff" strokeWidth="3" filter="url(#gl)"/>
+      <line x1="145" y1="160" x2="50" y2="160" stroke="#00aaff" strokeWidth="3"/>
+      <line x1="50" y1="160" x2="50" y2="92" stroke="#00aaff" strokeWidth="3" markerEnd="url(#aC)"/>
+      <text x="72" y="218" textAnchor="middle" fill="#00aaff" fontSize="9" fontFamily="monospace" transform="rotate(-90,72,218)">④ Vapeur BP surchauffée</text>
+      {[{x:160,y:85,n:"1"},{x:420,y:85,n:"2"},{x:500,y:283,n:"3"},{x:240,y:315,n:"4"}].map(p=>(
+        <g key={p.n}><circle cx={p.x} cy={p.y} r="11" fill="#0d0d1a" stroke="#fff" strokeWidth="1.5"/><text x={p.x} y={p.y+4} textAnchor="middle" fill="#fff" fontSize="9" fontWeight="bold" fontFamily="monospace">{p.n}</text></g>
+      ))}
+      <rect x="25" y="355" width="240" height="50" rx="6" fill="rgba(255,204,0,0.08)" stroke="rgba(255,204,0,0.35)" strokeWidth="1"/>
+      <text x="145" y="374" textAnchor="middle" fill="#ffcc00" fontSize="10" fontWeight="bold" fontFamily="monospace">COP = Qf / W = (h1−h4) / (h2−h1)</text>
+      <text x="145" y="392" textAnchor="middle" fill="#aaa" fontSize="9" fontFamily="monospace">Installation réelle : COP = 2,5 à 4,5</text>
+      <text x="350" y="413" textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="9" fontFamily="monospace">Cycle frigorifique à compression de vapeur — Points thermodynamiques 1-2-3-4</text>
+    </svg>
+  );
+}
+
+function DiagCRAC() {
+  return (
+    <svg viewBox="0 0 700 400" style={{width:"100%"}}>
+      <defs><filter id="gl2"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      <rect x="200" y="30" width="300" height="335" rx="10" fill="#0d0d1a" stroke="#ff6b2b" strokeWidth="2" filter="url(#gl2)"/>
+      <text x="350" y="56" textAnchor="middle" fill="#ff6b2b" fontSize="15" fontWeight="bold" fontFamily="monospace">CRAC</text>
+      <text x="350" y="73" textAnchor="middle" fill="#aaa" fontSize="9" fontFamily="monospace">Armoire de climatisation de précision</text>
+      {[
+        {y:90, color:"#00aaff", l:"BATTERIE DX (Évaporateur)", s:"Frigorigène R410A / R32"},
+        {y:148,color:"#ff4444", l:"BATTERIE CHAUDE",           s:"Électrique ou eau chaude 70°C"},
+        {y:206,color:"#00ffff", l:"HUMIDIFICATEUR",            s:"Électrodes immersées (vapeur)"},
+        {y:264,color:"#bf5fff", l:"VENTILATEURS EC",           s:"Vitesse variable 0-100%"},
+        {y:320,color:"#00ff88", l:"FILTRERIE G4 + F7",         s:"EN 779 — ΔP mesuré"},
+      ].map(c=>(
+        <g key={c.y}>
+          <rect x="215" y={c.y} width="270" height="46" rx="5" fill="rgba(0,0,0,0.4)" stroke={c.color} strokeWidth="1"/>
+          <text x="350" y={c.y+17} textAnchor="middle" fill={c.color} fontSize="10" fontWeight="bold" fontFamily="monospace">{c.l}</text>
+          <text x="350" y={c.y+32} textAnchor="middle" fill="#888" fontSize="9" fontFamily="monospace">{c.s}</text>
+        </g>
+      ))}
+      <rect x="565" y="50" width="120" height="80" rx="8" fill="#0d0d1a" stroke="#ff6b2b" strokeWidth="1.5"/>
+      <text x="625" y="77" textAnchor="middle" fill="#ff6b2b" fontSize="10" fontWeight="bold" fontFamily="monospace">CONDENSEUR</text>
+      <text x="625" y="92" textAnchor="middle" fill="#aaa" fontSize="8" fontFamily="monospace">Air ext. ou eau</text>
+      <text x="625" y="107" textAnchor="middle" fill="#ffcc00" fontSize="8" fontFamily="monospace">Tcond 35-50°C</text>
+      <line x1="500" y1="115" x2="565" y2="90" stroke="#ff6b2b" strokeWidth="1.5" strokeDasharray="4,3" opacity="0.7"/>
+      <line x1="500" y1="130" x2="565" y2="122" stroke="#00d4ff" strokeWidth="1.5" strokeDasharray="4,3" opacity="0.7"/>
+      <text x="532" y="98" textAnchor="middle" fill="#ff6b2b" fontSize="8" fontFamily="monospace">HP →</text>
+      <text x="532" y="132" textAnchor="middle" fill="#00d4ff" fontSize="8" fontFamily="monospace">← BP</text>
+      <rect x="565" y="160" width="120" height="75" rx="8" fill="#0d0d1a" stroke="#00ff88" strokeWidth="1.5"/>
+      <text x="625" y="185" textAnchor="middle" fill="#00ff88" fontSize="10" fontWeight="bold" fontFamily="monospace">AUTOMATE DDC</text>
+      <text x="625" y="200" textAnchor="middle" fill="#aaa" fontSize="8" fontFamily="monospace">Contrôleur embarqué</text>
+      <text x="625" y="215" textAnchor="middle" fill="#ffcc00" fontSize="8" fontFamily="monospace">Modbus / BACnet</text>
+      <line x1="500" y1="197" x2="565" y2="197" stroke="#00ff88" strokeWidth="1.5" strokeDasharray="3,3" opacity="0.7"/>
+      <rect x="20" y="135" width="100" height="55" rx="6" fill="#0d0d1a" stroke="#ff6b2b" strokeWidth="1.5"/>
+      <text x="70" y="158" textAnchor="middle" fill="#ff6b2b" fontSize="9" fontWeight="bold" fontFamily="monospace">AIR CHAUD</text>
+      <text x="70" y="173" textAnchor="middle" fill="#ffcc00" fontSize="9" fontFamily="monospace">~27°C retour</text>
+      <line x1="120" y1="162" x2="200" y2="162" stroke="#ff6b2b" strokeWidth="2.5" opacity="0.8"/>
+      <polygon points="194,157 204,162 194,167" fill="#ff6b2b"/>
+      <rect x="20" y="250" width="100" height="55" rx="6" fill="#0d0d1a" stroke="#00d4ff" strokeWidth="1.5"/>
+      <text x="70" y="273" textAnchor="middle" fill="#00d4ff" fontSize="9" fontWeight="bold" fontFamily="monospace">AIR FROID</text>
+      <text x="70" y="288" textAnchor="middle" fill="#ffcc00" fontSize="9" fontFamily="monospace">~15°C soufflage</text>
+      <line x1="200" y1="277" x2="120" y2="277" stroke="#00d4ff" strokeWidth="2.5" opacity="0.8"/>
+      <polygon points="126,272 116,277 126,282" fill="#00d4ff"/>
+      <rect x="565" y="265" width="120" height="95" rx="8" fill="rgba(255,107,43,0.07)" stroke="rgba(255,107,43,0.3)" strokeWidth="1"/>
+      <text x="625" y="288" textAnchor="middle" fill="#ff6b2b" fontSize="9" fontWeight="bold" fontFamily="monospace">SPÉCIFICATIONS</text>
+      <text x="625" y="304" textAnchor="middle" fill="#aaa" fontSize="8" fontFamily="monospace">Puissance : 10-60 kW</text>
+      <text x="625" y="318" textAnchor="middle" fill="#aaa" fontSize="8" fontFamily="monospace">T° : ±0,5°C</text>
+      <text x="625" y="332" textAnchor="middle" fill="#aaa" fontSize="8" fontFamily="monospace">HR : 40-60%</text>
+      <text x="625" y="346" textAnchor="middle" fill="#ffcc00" fontSize="8" fontFamily="monospace">COP : 2,0 à 3,5</text>
+      <text x="350" y="390" textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="9" fontFamily="monospace">CRAC — Architecture armoire intégrée avec circuit frigorifique interne</text>
+    </svg>
+  );
+}
+
+function DiagCRAH() {
+  return (
+    <svg viewBox="0 0 700 400" style={{width:"100%"}}>
+      <defs><filter id="gl3"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      <rect x="230" y="50" width="240" height="300" rx="10" fill="#0d0d1a" stroke="#00ff88" strokeWidth="2" filter="url(#gl3)"/>
+      <text x="350" y="76" textAnchor="middle" fill="#00ff88" fontSize="14" fontWeight="bold" fontFamily="monospace">CRAH</text>
+      <text x="350" y="92" textAnchor="middle" fill="#aaa" fontSize="9" fontFamily="monospace">Computer Room Air Handler</text>
+      <rect x="245" y="105" width="210" height="60" rx="5" fill="#0a1a2e" stroke="#00aaff" strokeWidth="1.5"/>
+      <text x="350" y="125" textAnchor="middle" fill="#00aaff" fontSize="10" fontWeight="bold" fontFamily="monospace">BATTERIE EAU GLACÉE</text>
+      <text x="350" y="140" textAnchor="middle" fill="#aaa" fontSize="9" fontFamily="monospace">Entrée 6°C → Sortie 12°C</text>
+      <text x="350" y="155" textAnchor="middle" fill="#ffcc00" fontSize="9" fontFamily="monospace">Q = 1,163 × ΔT × débit (m³/h)</text>
+      <rect x="245" y="178" width="210" height="55" rx="5" fill="#0a0a1e" stroke="#bf5fff" strokeWidth="1.5"/>
+      <text x="350" y="198" textAnchor="middle" fill="#bf5fff" fontSize="10" fontWeight="bold" fontFamily="monospace">VENTILATEURS EC</text>
+      <text x="350" y="213" textAnchor="middle" fill="#aaa" fontSize="9" fontFamily="monospace">η &gt; 90% — Vitesse variable</text>
+      {[285,315,345,375,405].map(x=>(<g key={x}><circle cx={x} cy={224} r="7" fill="none" stroke="#bf5fff" strokeWidth="1" opacity="0.6"/><line x1={x-7} y1={224} x2={x+7} y2={224} stroke="#bf5fff" strokeWidth="1" opacity="0.6"/><line x1={x} y1={217} x2={x} y2={231} stroke="#bf5fff" strokeWidth="1" opacity="0.6"/></g>))}
+      <rect x="245" y="246" width="210" height="42" rx="5" fill="#0a1a0a" stroke="#00ff88" strokeWidth="1"/>
+      <text x="350" y="265" textAnchor="middle" fill="#00ff88" fontSize="10" fontWeight="bold" fontFamily="monospace">AUTOMATE DDC</text>
+      <text x="350" y="280" textAnchor="middle" fill="#aaa" fontSize="9" fontFamily="monospace">BACnet/IP — Modbus TCP</text>
+      <rect x="245" y="300" width="105" height="38" rx="5" fill="#0a0a0a" stroke="#ff6b2b" strokeWidth="1"/>
+      <text x="297" y="317" textAnchor="middle" fill="#ff6b2b" fontSize="9" fontWeight="bold" fontFamily="monospace">VANNE 2V</text>
+      <text x="297" y="331" textAnchor="middle" fill="#888" fontSize="8" fontFamily="monospace">Motorisée 24V</text>
+      <rect x="20" y="125" width="90" height="58" rx="6" fill="#0d0d1a" stroke="#ff6b2b" strokeWidth="1.5"/>
+      <text x="65" y="149" textAnchor="middle" fill="#ff6b2b" fontSize="9" fontWeight="bold" fontFamily="monospace">AIR CHAUD</text>
+      <text x="65" y="163" textAnchor="middle" fill="#aaa" fontSize="8" fontFamily="monospace">Retour salle ~27°C</text>
+      <line x1="110" y1="154" x2="230" y2="154" stroke="#ff6b2b" strokeWidth="2.5" opacity="0.8"/>
+      <polygon points="224,149 234,154 224,159" fill="#ff6b2b"/>
+      <rect x="590" y="125" width="90" height="58" rx="6" fill="#0d0d1a" stroke="#00d4ff" strokeWidth="1.5"/>
+      <text x="635" y="149" textAnchor="middle" fill="#00d4ff" fontSize="9" fontWeight="bold" fontFamily="monospace">AIR FROID</text>
+      <text x="635" y="163" textAnchor="middle" fill="#aaa" fontSize="8" fontFamily="monospace">Soufflage ~15°C</text>
+      <line x1="470" y1="154" x2="590" y2="154" stroke="#00aaff" strokeWidth="2.5" opacity="0.8"/>
+      <polygon points="584,149 594,154 584,159" fill="#00aaff"/>
+      <rect x="30" y="270" width="120" height="68" rx="8" fill="#0d0d1a" stroke="#00aaff" strokeWidth="2"/>
+      <text x="90" y="297" textAnchor="middle" fill="#00aaff" fontSize="10" fontWeight="bold" fontFamily="monospace">CHILLER</text>
+      <text x="90" y="312" textAnchor="middle" fill="#aaa" fontSize="8" fontFamily="monospace">Groupe froid central</text>
+      <text x="90" y="327" textAnchor="middle" fill="#ffcc00" fontSize="8" fontFamily="monospace">Eau 6°C / 12°C</text>
+      <path d="M150,285 Q192,285 210,145 L230,145" fill="none" stroke="#00aaff" strokeWidth="2" strokeDasharray="5,3" opacity="0.7"/>
+      <path d="M150,315 Q196,315 215,163 L230,163" fill="none" stroke="#006699" strokeWidth="2" strokeDasharray="5,3" opacity="0.7"/>
+      <rect x="595" y="230" width="90" height="120" rx="6" fill="#0d0d1a" stroke="#ff6b2b" strokeWidth="1.5"/>
+      <text x="640" y="256" textAnchor="middle" fill="#ff6b2b" fontSize="9" fontFamily="monospace">SERVEURS</text>
+      {[265,275,285,295,305,315,325,335].map(y=>(<rect key={y} x="607" y={y} width="66" height="5" rx="1" fill="#1a1a1a" stroke="#333" strokeWidth="0.5"/>))}
+      <text x="350" y="392" textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="9" fontFamily="monospace">Architecture CRAH — Refroidissement à eau glacée centralisée (chiller N+1)</text>
+    </svg>
+  );
+}
+
+function DiagFanwall() {
+  const fans = [];
+  for(let c=0;c<4;c++) for(let r=0;r<3;r++) fans.push({c,r,spare:c===3&&r===1});
+  return (
+    <svg viewBox="0 0 700 378" style={{width:"100%"}}>
+      <defs><filter id="gl4"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      <text x="350" y="26" textAnchor="middle" fill="#bf5fff" fontSize="15" fontWeight="bold" fontFamily="monospace">FANWALL — Matrice 3×4 (N+1)</text>
+      <text x="350" y="44" textAnchor="middle" fill="#aaa" fontSize="10" fontFamily="monospace">11 ventilateurs actifs + 1 spare — Redondance intégrée</text>
+      {fans.map(({c,r,spare})=>{
+        const cx=120+c*130, cy=98+r*80, sc=spare?"#ffcc00":"#bf5fff";
+        return (<g key={`${c}-${r}`} transform={`translate(${cx},${cy})`}>
+          <circle cx="0" cy="0" r="35" fill="#0d0d1a" stroke={sc} strokeWidth={spare?2.5:1.5} filter="url(#gl4)"/>
+          {[0,72,144,216,288].map(a=>(<g key={a} transform={`rotate(${a})`}><ellipse cx="0" cy="-19" rx="7" ry="14" fill={spare?"rgba(255,204,0,0.3)":"rgba(191,95,255,0.3)"} stroke={sc} strokeWidth="0.5"/></g>))}
+          <circle cx="0" cy="0" r="5" fill={sc}/>
+          <text x="0" y="46" textAnchor="middle" fill={spare?"#ffcc00":"#aaa"} fontSize="9" fontFamily="monospace">{spare?"SPARE N+1":`FAN ${c*3+r+1}`}</text>
+          <text x="0" y="58" textAnchor="middle" fill="#555" fontSize="8" fontFamily="monospace">{spare?"En attente":"EC 800W"}</text>
+        </g>);
+      })}
+      <text x="28" y="198" textAnchor="middle" fill="#ff6b2b" fontSize="10" fontFamily="monospace" transform="rotate(-90,28,198)">AIR CHAUD</text>
+      <text x="668" y="198" textAnchor="middle" fill="#00d4ff" fontSize="10" fontFamily="monospace" transform="rotate(90,668,198)">AIR TRAITÉ</text>
+      <rect x="40" y="292" width="294" height="72" rx="8" fill="rgba(191,95,255,0.07)" stroke="rgba(191,95,255,0.35)" strokeWidth="1"/>
+      <text x="187" y="312" textAnchor="middle" fill="#bf5fff" fontSize="11" fontWeight="bold" fontFamily="monospace">LOIS DE SIMILITUDE</text>
+      <text x="187" y="327" textAnchor="middle" fill="#aaa" fontSize="9" fontFamily="monospace">Débit ∝ n  |  ΔP ∝ n²  |  Puissance ∝ n³</text>
+      <text x="187" y="343" textAnchor="middle" fill="#ffcc00" fontSize="9" fontFamily="monospace">−20% vitesse → −49% puissance (loi cubique !)</text>
+      <text x="187" y="358" textAnchor="middle" fill="#00ff88" fontSize="9" fontFamily="monospace">Panne 1/12 → +14,3% vitesse des 11 restants</text>
+      <rect x="366" y="292" width="294" height="72" rx="8" fill="rgba(0,255,136,0.07)" stroke="rgba(0,255,136,0.35)" strokeWidth="1"/>
+      <text x="513" y="312" textAnchor="middle" fill="#00ff88" fontSize="11" fontWeight="bold" fontFamily="monospace">REDONDANCE N+1</text>
+      <text x="513" y="327" textAnchor="middle" fill="#aaa" fontSize="9" fontFamily="monospace">11 fans actifs + 1 spare (colonne droite)</text>
+      <text x="513" y="343" textAnchor="middle" fill="#aaa" fontSize="9" fontFamily="monospace">Panne → spare démarre automatiquement</text>
+      <text x="513" y="358" textAnchor="middle" fill="#00ff88" fontSize="9" fontFamily="monospace">Hot-swap : remplacement sous tension &lt;30s</text>
+    </svg>
+  );
+}
+
+function DiagCVC() {
+  const secs=[
+    {x:72, color:"#00ff88",l:"VOLET AN",   s1:"Motorisé 24V",  s2:"CO₂ DCV",     i:"🌬️"},
+    {x:172,color:"#00ff88",l:"FILTRES",    s1:"G4 + F7",       s2:"ΔP alerte",   i:"🔲"},
+    {x:270,color:"#bf5fff",l:"RÉCUPÉR.",   s1:"Plaques",       s2:"η=75-85%",    i:"♻️"},
+    {x:367,color:"#00aaff",l:"BAT.FROIDE", s1:"6/12°C EG",     s2:"Vanne 3V",    i:"🧊"},
+    {x:464,color:"#ff4444",l:"BAT.CHAUDE", s1:"70/50°C",       s2:"Vanne 3V",    i:"🔥"},
+    {x:552,color:"#00ffff",l:"HUMIDIF.",   s1:"Vapeur",        s2:"HR 45-55%",   i:"💧"},
+    {x:626,color:"#bf5fff",l:"VENTI.",     s1:"EC direct",     s2:"VSD 0-100%",  i:"🔄"},
+  ];
+  return (
+    <svg viewBox="0 0 700 370" style={{width:"100%"}}>
+      <defs><filter id="gl5"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      <text x="350" y="18" textAnchor="middle" fill="#ffcc00" fontSize="14" fontWeight="bold" fontFamily="monospace">CENTRALE DE TRAITEMENT D'AIR (CTA)</text>
+      <rect x="20" y="28" width="660" height="242" rx="10" fill="#0d0d1a" stroke="#ffcc00" strokeWidth="1.5" filter="url(#gl5)"/>
+      {[123,222,318,416,512,592].map(x=>(<line key={x} x1={x} y1={28} x2={x} y2={270} stroke="rgba(255,204,0,0.13)" strokeWidth="1" strokeDasharray="3,3"/>))}
+      {secs.map(s=>(<g key={s.x}><text x={s.x} y={70} textAnchor="middle" fontSize="16">{s.i}</text><text x={s.x} y={98} textAnchor="middle" fill={s.color} fontSize="9" fontWeight="bold" fontFamily="monospace">{s.l}</text><text x={s.x} y={114} textAnchor="middle" fill="#aaa" fontSize="8" fontFamily="monospace">{s.s1}</text><text x={s.x} y={128} textAnchor="middle" fill="#666" fontSize="8" fontFamily="monospace">{s.s2}</text></g>))}
+      <rect x="25" y="152" width="650" height="30" rx="4" fill="rgba(255,204,0,0.04)"/>
+      <line x1="30" y1="167" x2="658" y2="167" stroke="#ffcc00" strokeWidth="2" strokeDasharray="8,4" opacity="0.5"/>
+      <polygon points="652,162 662,167 652,172" fill="#ffcc00" opacity="0.5"/>
+      <text x="350" y="198" textAnchor="middle" fill="rgba(255,204,0,0.4)" fontSize="10" fontFamily="monospace">→ Flux d'air traité →</text>
+      <rect x="20" y="283" width="660" height="70" rx="6" fill="rgba(255,204,0,0.04)" stroke="rgba(255,204,0,0.18)" strokeWidth="1"/>
+      <text x="350" y="300" textAnchor="middle" fill="#ffcc00" fontSize="10" fontWeight="bold" fontFamily="monospace">PARAMÈTRES DE RÉGULATION — AUTOMATE DDC</text>
+      {[{x:100,c:"#00aaff",l:"T° soufflage",v:"16-18°C PID"},{x:230,c:"#00ffff",l:"Humidité HR",v:"45-55% PID"},{x:360,c:"#00ff88",l:"CO₂ (DCV)",v:"< 1000 ppm"},{x:490,c:"#bf5fff",l:"ΔP filtres",v:"Alarme +50%"},{x:620,c:"#ff4444",l:"Anti-gel",v:"Alarme < 4°C"}].map(r=>(<g key={r.x}><text x={r.x} y={320} textAnchor="middle" fill={r.c} fontSize="9" fontFamily="monospace">{r.l}</text><text x={r.x} y={335} textAnchor="middle" fill="#777" fontSize="8" fontFamily="monospace">{r.v}</text></g>))}
+      <text x="350" y="363" textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="9" fontFamily="monospace">CTA double flux avec récupération — Schéma de principe fonctionnel</text>
+    </svg>
+  );
+}
+
+const DIAGRAMS = {
+  "circuit-frigo": DiagCircuitFrigo,
+  "crac": DiagCRAC,
+  "crah": DiagCRAH,
+  "fanwall": DiagFanwall,
+  "cvc": DiagCVC,
+};
+
+// ── Rendu du contenu de cours ───────────────────────────────────────────────
+function CourseContent({items, color}) {
+  return items.map((item, i) => {
+    if (item.type === "h") return (
+      <div key={i} style={{color, fontFamily:"monospace", fontSize:11, fontWeight:"bold", marginTop:18, marginBottom:7, letterSpacing:1, borderBottom:`1px solid rgba(255,255,255,0.06)`, paddingBottom:4}}>
+        ▸ {item.text}
+      </div>
+    );
+    if (item.type === "p") return (
+      <p key={i} style={{color:"#ccc", fontFamily:"monospace", fontSize:10, lineHeight:1.75, margin:"6px 0"}}>{item.text}</p>
+    );
+    if (item.type === "b") return (
+      <div key={i} style={{display:"flex", gap:8, marginBottom:5, paddingLeft:12}}>
+        <span style={{color, flexShrink:0, fontSize:10}}>•</span>
+        <p style={{color:"#ccc", fontFamily:"monospace", fontSize:10, margin:0, lineHeight:1.65}}>
+          <strong style={{color:"#fff"}}>{item.bold}</strong>{item.text}
+        </p>
+      </div>
+    );
+    if (item.type === "li") return (
+      <div key={i} style={{display:"flex", gap:8, marginBottom:6, paddingLeft:8}}>
+        <span style={{color, fontFamily:"monospace", fontSize:10, flexShrink:0, minWidth:18, fontWeight:"bold"}}>{item.n}.</span>
+        <p style={{color:"#ccc", fontFamily:"monospace", fontSize:10, margin:0, lineHeight:1.65}}>
+          <strong style={{color:"#fff"}}>{item.bold}</strong>{item.text}
+        </p>
+      </div>
+    );
+    if (item.type === "formula") return (
+      <div key={i} style={{background:`rgba(255,204,0,0.06)`, border:"1px solid rgba(255,204,0,0.25)", borderRadius:8, padding:"10px 16px", margin:"12px 0", textAlign:"center"}}>
+        <div style={{color:"#ffcc00", fontFamily:"monospace", fontSize:12, fontWeight:"bold"}}>{item.text}</div>
+        {item.sub && <div style={{color:"#888", fontFamily:"monospace", fontSize:9, marginTop:5}}>{item.sub}</div>}
+      </div>
+    );
+    return null;
+  });
+}
+
+// ── Application principale ──────────────────────────────────────────────────
+function App() {
+  const [modIdx, setModIdx]     = React.useState(0);
+  const [chapIdx, setChapIdx]   = React.useState(0);
+  const [view, setView]         = React.useState("learn");
+  const [answers, setAnswers]   = React.useState({});
+  const [progress, setProgress] = React.useState({});
+  const [showDiag, setShowDiag] = React.useState(true);
+  const contentRef              = React.useRef();
+
+  const mod     = MODULES[modIdx];
+  const chapter = mod.chapters[chapIdx];
+  const Diagram = DIAGRAMS[mod.id];
+  const total   = MODULES.reduce((s,m)=>s+m.chapters.length, 0);
+  const done    = Object.keys(progress).length;
+  const pct     = Math.round(done/total*100);
+  const isFirst = modIdx===0 && chapIdx===0;
+  const isLast  = modIdx===MODULES.length-1 && chapIdx===mod.chapters.length-1;
+
+  React.useEffect(()=>{ setChapIdx(0); setView("learn"); setAnswers({}); contentRef.current?.scrollTo(0,0); }, [modIdx]);
+  React.useEffect(()=>{ setView("learn"); setAnswers({}); contentRef.current?.scrollTo(0,0); }, [chapIdx]);
+
+  const markDone = () => setProgress(p=>({...p,[`${mod.id}-${chapter.id}`]:true}));
+
+  const handleAnswer = (qi, ci) => {
+    if (answers[qi]!==undefined) return;
+    setAnswers(a=>({...a,[qi]:ci}));
+    if (ci===chapter.quiz[qi].answer) markDone();
+  };
+
+  const goNext = () => {
+    if (chapIdx<mod.chapters.length-1) setChapIdx(c=>c+1);
+    else if (modIdx<MODULES.length-1) setModIdx(m=>m+1);
+  };
+  const goPrev = () => {
+    if (chapIdx>0) setChapIdx(c=>c-1);
+    else if (modIdx>0) { const pm=MODULES[modIdx-1]; setModIdx(m=>m-1); setTimeout(()=>setChapIdx(pm.chapters.length-1),10); }
+  };
+
+  const allDone = chapter.quiz && Object.keys(answers).length===chapter.quiz.length;
+  const score   = chapter.quiz ? chapter.quiz.filter((q,i)=>answers[i]===q.answer).length : 0;
+  const rgb     = {c:"0,212,255","#00d4ff":"0,212,255","#ff6b2b":"255,107,43","#00ff88":"0,255,136","#bf5fff":"191,95,255","#ffcc00":"255,204,0"};
+  const c       = rgb[mod.color]||"255,255,255";
+
+  return (
+    <div style={{minHeight:"100vh",display:"flex",flexDirection:"column"}}>
+
+      {/* Header */}
+      <div style={{background:"#08080f",borderBottom:"1px solid rgba(255,255,255,0.07)",padding:"0 20px",height:54,display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:100}}>
+        <div style={{display:"flex",alignItems:"center",gap:12}}>
+          <div style={{width:32,height:32,borderRadius:7,background:`linear-gradient(135deg,${mod.color},#003366)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16}}>🏗️</div>
+          <div>
+            <div style={{fontSize:11,fontWeight:"bold",letterSpacing:2}}>TECHNICIEN CVC</div>
+            <div style={{fontSize:8,color:"#444",letterSpacing:1}}>FORMATION PROFESSIONNELLE CERTIFIÉE</div>
+          </div>
+        </div>
+        <div style={{flex:1,maxWidth:300,margin:"0 30px"}}>
+          <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+            <span style={{fontSize:8,color:"#444"}}>PROGRESSION</span>
+            <span style={{fontSize:8,color:mod.color}}>{pct}% — {done}/{total} chapitres</span>
+          </div>
+          <div style={{height:3,background:"#1a1a2e",borderRadius:2,overflow:"hidden"}}>
+            <div style={{height:"100%",width:`${pct}%`,background:mod.color,borderRadius:2,transition:"width 0.5s"}}/>
+          </div>
+        </div>
+        <div style={{fontSize:8,color:"#2a2a2a"}}>ASHRAE • EN 1886 • NF EN 378</div>
+      </div>
+
+      <div style={{display:"flex",flex:1,overflow:"hidden"}}>
+
+        {/* Sidebar */}
+        <div style={{width:245,background:"#07070d",borderRight:"1px solid rgba(255,255,255,0.05)",overflow:"auto",flexShrink:0}}>
+          <div style={{fontSize:8,color:"#333",padding:"12px 14px 5px",letterSpacing:2}}>MODULES</div>
+          {MODULES.map((m,i)=>(
+            <div key={m.id} onClick={()=>setModIdx(i)} style={{padding:"8px 14px",cursor:"pointer",borderLeft:`3px solid ${modIdx===i?m.color:"transparent"}`,background:modIdx===i?`rgba(${rgb[m.color]||"255,255,255"},0.07)`:"transparent",display:"flex",alignItems:"center",gap:10,transition:"all 0.2s"}}>
+              <span style={{fontSize:14}}>{m.icon}</span>
+              <div>
+                <div style={{fontSize:10,fontWeight:"bold",color:modIdx===i?m.color:"#666"}}>{m.title}</div>
+                <div style={{fontSize:8,color:"#333",marginTop:1}}>{m.subtitle}</div>
+              </div>
+            </div>
+          ))}
+          <div style={{fontSize:8,color:"#333",padding:"12px 14px 5px",letterSpacing:2,borderTop:"1px solid rgba(255,255,255,0.04)",marginTop:6}}>CHAPITRES</div>
+          {mod.chapters.map((ch,i)=>{
+            const isDone=progress[`${mod.id}-${ch.id}`];
+            return (
+              <div key={ch.id} onClick={()=>setChapIdx(i)} style={{padding:"7px 14px",cursor:"pointer",background:chapIdx===i?"rgba(255,255,255,0.04)":"transparent",display:"flex",alignItems:"center",gap:8}}>
+                <div style={{width:14,height:14,borderRadius:"50%",background:isDone?mod.color:"transparent",border:`1px solid ${isDone?mod.color:"#2a2a2a"}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:7,color:isDone?"#000":"#444",flexShrink:0}}>{isDone?"✓":i+1}</div>
+                <span style={{fontSize:9,color:chapIdx===i?"#ccc":"#555",lineHeight:1.3}}>{ch.title}</span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Main */}
+        <div ref={contentRef} style={{flex:1,overflow:"auto",background:"#06060e"}}>
+          {/* Banner */}
+          <div style={{background:mod.gradient,padding:"16px 28px",borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
+            <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:8}}>
+              <span style={{fontSize:22}}>{mod.icon}</span>
+              <div>
+                <div style={{fontSize:16,fontWeight:"bold"}}>{mod.title}</div>
+                <div style={{fontSize:10,color:"rgba(255,255,255,0.5)"}}>{mod.subtitle}</div>
+              </div>
+            </div>
+            <div style={{display:"inline-block",background:"rgba(0,0,0,0.4)",border:`1px solid ${mod.color}`,borderRadius:20,padding:"3px 12px",fontSize:9,color:mod.color,letterSpacing:1}}>📖 {chapter.title}</div>
+          </div>
+
+          {/* Tabs */}
+          <div style={{display:"flex",borderBottom:"1px solid rgba(255,255,255,0.05)",background:"#08080f"}}>
+            {[["learn","📘 COURS"],["quiz",`🧠 QUIZ (${chapter.quiz?.length||0} questions)`]].map(([v,l])=>(
+              <button key={v} onClick={()=>setView(v)} style={{padding:"9px 20px",background:view===v?`rgba(${c},0.1)`:"transparent",border:"none",borderBottom:view===v?`2px solid ${mod.color}`:"2px solid transparent",color:view===v?mod.color:"#555",cursor:"pointer",fontSize:9,fontFamily:"monospace",letterSpacing:1,transition:"all 0.2s"}}>{l}</button>
+            ))}
+          </div>
+
+          <div style={{padding:"20px 28px",maxWidth:840,margin:"0 auto"}}>
+            {view==="learn" && (
+              <>
+                {/* Schéma */}
+                {Diagram && (
+                  <div style={{marginBottom:20}}>
+                    <div onClick={()=>setShowDiag(d=>!d)} style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",marginBottom:10,color:mod.color,fontSize:9,letterSpacing:1}}>
+                      {showDiag?"▼":"▶"} SCHÉMA TECHNIQUE <span style={{color:"#333",fontSize:8}}>(cliquer)</span>
+                    </div>
+                    {showDiag&&(
+                      <div style={{background:"#090912",border:`1px solid rgba(${c},0.18)`,borderRadius:10,padding:14,overflow:"hidden"}}>
+                        <Diagram/>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Cours */}
+                <div style={{background:"#0a0a14",border:"1px solid rgba(255,255,255,0.05)",borderRadius:10,padding:20,marginBottom:16}}>
+                  <div style={{fontSize:9,color:mod.color,letterSpacing:1,marginBottom:14}}>📖 COURS THÉORIQUE</div>
+                  <CourseContent items={chapter.content} color={mod.color}/>
+                </div>
+
+                {/* Points clés */}
+                <div style={{background:`rgba(${c},0.05)`,border:`1px solid rgba(${c},0.2)`,borderRadius:10,padding:16,marginBottom:18}}>
+                  <div style={{fontSize:9,color:mod.color,letterSpacing:1,marginBottom:10}}>⭐ POINTS CLÉS À RETENIR</div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
+                    {chapter.keyPoints.map((kp,i)=>(
+                      <div key={i} style={{background:"rgba(0,0,0,0.3)",borderRadius:6,padding:"7px 10px",fontSize:9,color:"#ccc",fontFamily:"monospace",display:"flex",gap:7}}>
+                        <span style={{color:mod.color,flexShrink:0}}>▸</span>{kp}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Nav */}
+                <div style={{display:"flex",justifyContent:"space-between"}}>
+                  <button onClick={goPrev} disabled={isFirst} style={{padding:"8px 16px",background:"transparent",border:"1px solid #2a2a3a",borderRadius:6,color:isFirst?"#333":"#777",cursor:isFirst?"not-allowed":"pointer",fontFamily:"monospace",fontSize:9}}>← Précédent</button>
+                  <button onClick={()=>setView("quiz")} style={{padding:"8px 18px",background:mod.color,border:"none",borderRadius:6,color:"#000",cursor:"pointer",fontFamily:"monospace",fontSize:9,fontWeight:"bold",letterSpacing:1}}>PASSER LE QUIZ →</button>
+                </div>
+              </>
+            )}
+
+            {view==="quiz" && (
+              <>
+                <div style={{background:"#0a0a14",border:"1px solid rgba(255,255,255,0.05)",borderRadius:10,padding:20,marginBottom:14}}>
+                  <div style={{fontSize:9,color:mod.color,letterSpacing:1,marginBottom:4}}>🧠 ÉVALUATION DES CONNAISSANCES</div>
+                  <div style={{fontSize:8,color:"#444",marginBottom:20}}>{chapter.title} — {chapter.quiz.length} question{chapter.quiz.length>1?"s":""}</div>
+
+                  {chapter.quiz.map((q,qi)=>{
+                    const ans=answers[qi]!==undefined;
+                    const ok=answers[qi]===q.answer;
+                    return (
+                      <div key={qi} style={{marginBottom:22,padding:16,background:ans?(ok?"rgba(0,255,136,0.05)":"rgba(255,60,60,0.05)"):"rgba(255,255,255,0.02)",border:`1px solid ${ans?(ok?"#00ff88":"#ff4444"):"rgba(255,255,255,0.05)"}`,borderRadius:8}}>
+                        <div style={{fontSize:11,color:"#eee",marginBottom:14,lineHeight:1.55}}>
+                          <span style={{color:mod.color,marginRight:8,fontSize:10}}>Q{qi+1}.</span>{q.q}
+                        </div>
+                        <div style={{display:"flex",flexDirection:"column",gap:7}}>
+                          {q.choices.map((ch,ci)=>{
+                            const sel=answers[qi]===ci, isA=ci===q.answer;
+                            let bc="#1a1a2e",bg="rgba(255,255,255,0.02)",tc="#888";
+                            if(ans){if(isA){bc="#00ff88";bg="rgba(0,255,136,0.09)";tc="#00ff88";}else if(sel){bc="#ff4444";bg="rgba(255,60,60,0.09)";tc="#ff4444";}}
+                            return (
+                              <div key={ci} onClick={()=>handleAnswer(qi,ci)} style={{padding:"9px 14px",background:bg,border:`1px solid ${bc}`,borderRadius:6,cursor:ans?"default":"pointer",color:tc,fontSize:10,fontFamily:"monospace",display:"flex",alignItems:"center",gap:10,transition:"all 0.2s"}}>
+                                <span style={{width:17,height:17,borderRadius:4,background:ans&&isA?"#00ff88":ans&&sel?"#ff4444":"#0a0a14",border:`1px solid ${bc}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:8,color:"#fff",flexShrink:0}}>
+                                  {ans?(isA?"✓":sel?"✗":""):String.fromCharCode(65+ci)}
+                                </span>{ch}
+                              </div>
+                            );
+                          })}
+                        </div>
+                        {ans&&(
+                          <div style={{marginTop:12,padding:"9px 14px",background:"rgba(0,0,0,0.3)",borderRadius:6,fontSize:9,color:"#bbb",lineHeight:1.6,borderLeft:`3px solid ${ok?"#00ff88":"#ff4444"}`}}>
+                            <span style={{color:ok?"#00ff88":"#ff4444",marginRight:6}}>{ok?"✅ CORRECT !":"❌ INCORRECT"}</span>
+                            {q.explanation}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+
+                  {allDone&&(
+                    <div style={{padding:18,background:score===chapter.quiz.length?"rgba(0,255,136,0.07)":"rgba(255,204,0,0.07)",border:`1px solid ${score===chapter.quiz.length?"#00ff88":"#ffcc00"}`,borderRadius:8,textAlign:"center"}}>
+                      <div style={{fontSize:22,marginBottom:8}}>{score===chapter.quiz.length?"🏆":"📚"}</div>
+                      <div style={{fontSize:15,color:score===chapter.quiz.length?"#00ff88":"#ffcc00",marginBottom:4}}>Score : {score}/{chapter.quiz.length}</div>
+                      <div style={{fontSize:9,color:"#777",marginBottom:14}}>{score===chapter.quiz.length?"Excellent ! Chapitre validé.":"Révisez le cours pour consolider vos connaissances."}</div>
+                      {!isLast&&<button onClick={goNext} style={{padding:"8px 18px",background:mod.color,border:"none",borderRadius:6,color:"#000",cursor:"pointer",fontFamily:"monospace",fontSize:9,fontWeight:"bold"}}>{chapIdx<mod.chapters.length-1?"CHAPITRE SUIVANT →":"MODULE SUIVANT →"}</button>}
+                      {isLast&&<div style={{color:"#00ff88",fontSize:13,fontWeight:"bold"}}>🎓 FORMATION COMPLÈTE TERMINÉE !</div>}
+                    </div>
+                  )}
+                </div>
+                <button onClick={()=>setView("learn")} style={{background:"transparent",border:"1px solid #2a2a3a",borderRadius:6,color:"#666",cursor:"pointer",padding:"7px 14px",fontFamily:"monospace",fontSize:9}}>← Retour au cours</button>
+              </>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div style={{borderTop:"1px solid rgba(255,255,255,0.04)",padding:"8px 28px",display:"flex",justifyContent:"space-between",background:"#06060e",marginTop:20}}>
+            <span style={{fontSize:8,color:"#1a1a1a"}}>ASHRAE TC9.9 • EN 1886 • EN 50600 • DÉCRET 2015-1334 • NF EN 378 • EN 779</span>
+            <span style={{fontSize:8,color:"#1a1a1a"}}>Formation Technicien CVC — Niveau II/III</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
